@@ -42,8 +42,12 @@ Django MVT 和 MVC 的对应
 ### 为什么就算 网页打成/hello少了一个slash， django 还能成功render 回来而不报错？
 > You may be wondering what happens if someone requests the URL /hello (that is, without a trailing slash). Because our URLpattern requires a trailing slash, that URL would not match. However, by default, any request to a URL that doesn’t match a URLpattern and doesn’t end with a slash will be redirected to the same URL with a trailing slash (This is regulated by the APPEND_SLASH Django setting, which is covered in Appendix D).
 
-### django 网页与视图匹配流程
-- ROOT_URLCONF tells Django which Python module should be used as the URLconf for this web site.
+### django 如何处理一个request的？ django 网页与视图匹配流程
+Before continuing to our second view function, let’s pause to learn a little more about how Django works. Specifically, when you view your “Hello world” message by visiting http://127.0.0.1:8000/hello/ in your web browser, what does Django do behind the scenes?
+
+It all starts with the settings file. When you run python manage.py runserver, the script looks for a file called settings.py in the inner mysite directory. This file contains all sorts of configuration for this particular Django project, all in uppercase: TEMPLATES, DATABASES, etc.
+
+The most important setting is called ROOT_URLCONF. ROOT_URLCONF tells Django which Python module should be used as the URLconf for this web site. Remember when django-admin startproject created the files settings.py and urls.py? The auto-generated settings.py contains a ROOT_URLCONF setting that points to the auto-generated urls.py. Open the settings.py file and see for yourself; it should look like this:
 
 `ROOT_URLCONF = 'mysite.urls'` 
 
@@ -57,3 +61,11 @@ Once it does this, Django does the rest, converting the Python object to a prope
 4. If it finds a match, it calls the associated view function.
 5. The view function returns an HttpResponse.
 6. Django converts the HttpResponse to the proper HTTP response, which results in a web page.
+
+## Django Views: Dynamic Content
+
+### URLconfs and Loose Coupling
+
+- Now’s a good time to highlight a key philosophy behind URLconfs and behind Django in general: the principle of loose coupling. Simply put, loose coupling is a software-development approach that values the importance of making pieces interchangeable. If two pieces of code are loosely coupled, then changes made to one of the pieces will have little or no effect on the other.
+
+### Dynamic URLS - wildcard URLpatterns
