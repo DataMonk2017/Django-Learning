@@ -125,6 +125,8 @@ For that reason, the Django error page is only displayed when your Django projec
 The system uses the first lookup type that works. It’s short-circuit logic. Dot lookups can be nested multiple levels deep. For instance, the following example uses {{ person.name.upper }}, which translates into a dictionary lookup (person['name']) and then a method call (upper())
 
 #### Method Call Behavior
+Method calls are slightly more complex than the other lookup types. Here are some things to keep in mind:
+
 - If, during the method lookup, a method raises an exception, the exception will be propagated, unless the exception has an attribute silent_variable_failure whose value is True. If the exception does have a silent_variable_failure attribute, the variable will render as the value of the engine’s string_if_invalid configuration option (an empty string, by default).
 
 - A method call will only work if the method has no required arguments. Otherwise, the system will move to the next lookup type (list-index lookup).
