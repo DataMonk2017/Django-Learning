@@ -38,4 +38,12 @@ Django MVT 和 MVC 的对应
 `ROOT_URLCONF = 'mysite.urls'` 
 
 This corresponds to the file mysite/urls.py. When a request comes in for a particular URL – say, a request for /hello/ – Django loads the URLconf pointed to by the ROOT_URLCONF setting. Then it checks each of the URLpatterns in that URLconf, in order, comparing the requested URL with the patterns one at a time, until it finds one that matches.
+When it finds one that matches, it calls the view function associated with that pattern, passing it an HttpRequest object as the first parameter. (We’ll cover the specifics of HttpRequest later.) As we saw in our first view example, a view function must return an HttpResponse.
 
+Once it does this, Django does the rest, converting the Python object to a proper web response with the appropriate HTTP headers and body (i.e., the content of the web page). In summary:
+1. A request comes in to /hello/.
+2. Django determines the root URLconf by looking at the ROOT_URLCONF setting.
+3. Django looks at all of the URLpatterns in the URLconf for the first one that matches /hello/.
+4. If it finds a match, it calls the associated view function.
+5. The view function returns an HttpResponse.
+6. Django converts the HttpResponse to the proper HTTP response, which results in a web page.
