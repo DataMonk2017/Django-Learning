@@ -1,4 +1,4 @@
-#The Model-View-Controller Design Pattern
+# The Model-View-Controller Design Pattern
 The MVC design pattern is:
 > - The model(M) is a model or representation of your data. It’s not the actual data, but an interface to the data. The model allows you to pull data from your database without knowing the intricacies of the underlying database. The model usually also provides an abstraction layer with your database, so that you can use the same model with multiple databases.
 > - The view(V) is what you see. It’s the presentation layer for your model. On your computer, the view is what you see in the browser for a Web app, or the UI for a desktop app. The view also provides an interface to collect user input.
