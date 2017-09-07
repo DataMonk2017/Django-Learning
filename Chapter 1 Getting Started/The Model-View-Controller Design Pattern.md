@@ -79,7 +79,8 @@ Once it does this, Django does the rest, converting the Python object to a prope
 
 At any point in your view, temporarily insert an assert False to trigger the error page. Then, you can view the local variables and state of the program. Here’s an example, using the hours_ahead view:
 
-` def hours_ahead(request, offset):
+`
+def hours_ahead(request, offset):
     try:
         offset = int(offset)
     except ValueError:
@@ -87,7 +88,8 @@ At any point in your view, temporarily insert an assert False to trigger the err
     dt = datetime.datetime.now() + datetime.timedelta(hours=offset)
     assert False
     html = "<html><body>In %s hour(s), it will be  %s.</body></html>" % (offset, dt)
-    return HttpResponse(html) `
+    return HttpResponse(html) 
+    `
     
 Finally, it’s obvious that much of this information is sensitive – it exposes the innards of your Python code and Django configuration – and it would be foolish to show this information on the public Internet. A malicious person could use it to attempt to reverse-engineer your web application and do nasty things.
 
