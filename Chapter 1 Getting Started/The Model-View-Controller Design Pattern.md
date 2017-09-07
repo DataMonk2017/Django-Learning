@@ -12,9 +12,12 @@ Django 已经将controller 集成包装了，人们只需要关注 models，temp
 > - V stands for “View,” the business logic layer. This layer contains the logic that accesses the model and defers to the appropriate template(s). You can think of it as the bridge between models and templates. We will be checking out Django’s views in the next chapter.
 
 Django MVT 和 MVC 的对应
+<br>
 
 | MVT | MVC |
 |-----:|:-----|
 |Models|Models|
 |View|Controller|
 |Template|View|
+
+#
