@@ -29,12 +29,15 @@ Django MVT 和 MVC 的对应
 - A URLconf is like a table of contents for your Django-powered web site. Basically, it’s a mapping between URLs and the view functions that should be called for those URLs. It’s how you tell Django, “For this URL, call this code, and for that URL, call that code.” For example, when somebody visits the URL /foo/, call the view function foo_view(), which lives in the Python module views.py.
 
 ### 需要import的模组
-- from the django.conf.urls module import include, url: include which allows you to include a full Python import path to another URLconf module, and url which uses a regular expression to pattern match the URL in your browser to a module in your Django project.
+- from the django.conf.urls module import include, url: 
+1. include which allows you to include a full Python import path to another URLconf module
+2. , and url which uses a regular expression to pattern match the URL in your browser to a module in your Django project.
 - from the django.contrib module import admin. This function is called by the include function to load the URLs for the Django admin site.
 
 ### urlparttern
 - urlpatterns – a simple list of url() instances. The main thing to note here is the variable urlpatterns, which Django expects to find in your URLconf module. This variable defines the mapping between URLs and the code that handles those URLs. To add a URL and view to the URLconf, just add a mapping between a URL pattern and the view function.
 - Django removes the slash from the front of every incoming URL before it checks the URLpatterns. This means that our URLpattern doesn’t include the leading slash in /hello/. At first, this may seem unintuitive, but this requirement simplifies things – such as the inclusion of URLconfs within other URLconfs.
+
 #### parttern里面 ^ 和 $ 以及 Regular Expressions
 - The pattern includes a caret (^) and a dollar sign ($). These are regular expression characters that have a special meaning: the caret means “require that the pattern matches the start of the string,” and the dollar sign means “require that the pattern matches the end of the string.”
 
@@ -69,3 +72,23 @@ Once it does this, Django does the rest, converting the Python object to a prope
 - Now’s a good time to highlight a key philosophy behind URLconfs and behind Django in general: the principle of loose coupling. Simply put, loose coupling is a software-development approach that values the importance of making pieces interchangeable. If two pieces of code are loosely coupled, then changes made to one of the pieces will have little or no effect on the other.
 
 ### Dynamic URLS - wildcard URLpatterns
+
+### Django’s Pretty Error Pages
+> Notes: If you’re experienced in another web development platform, you may be thinking, “Hey, let’s use a query string parameter!” – something like /time/plus?hours=3, in which the hours would be designated by the hours parameter in the URL’s query string (the part after the ‘?’).You can do that with Django (and I’ll tell you how in Chapter 7), but one of Django’s core philosophies is that URLs should be beautiful.
+> The URL /time/plus/3/ is far cleaner, simpler, more readable, easier to recite to somebody aloud and just plain prettier than its query string counterpart. Pretty URLs are a characteristic of a quality web application. Django’s URLconf system encourages pretty URLs by making it easier to use pretty URLs than not to.
+
+At any point in your view, temporarily insert an assert False to trigger the error page. Then, you can view the local variables and state of the program. Here’s an example, using the hours_ahead view:
+
+` def hours_ahead(request, offset):
+    try:
+        offset = int(offset)
+    except ValueError:
+        raise Http404()
+    dt = datetime.datetime.now() + datetime.timedelta(hours=offset)
+    assert False
+    html = "<html><body>In %s hour(s), it will be  %s.</body></html>" % (offset, dt)
+    return HttpResponse(html) `
+    
+Finally, it’s obvious that much of this information is sensitive – it exposes the innards of your Python code and Django configuration – and it would be foolish to show this information on the public Internet. A malicious person could use it to attempt to reverse-engineer your web application and do nasty things.
+
+For that reason, the Django error page is only displayed when your Django project is in debug mode. I’ll explain how to deactivate debug mode in Chapter 13. For now, just know that every Django project is in debug mode automatically when you start it. (Sound familiar? The “Page not found” errors, described earlier in this chapter, work the same way.)
