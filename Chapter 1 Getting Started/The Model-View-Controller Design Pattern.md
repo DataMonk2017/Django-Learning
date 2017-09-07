@@ -34,3 +34,8 @@ Django MVT 和 MVC 的对应
 - You may be wondering what happens if someone requests the URL /hello (that is, without a trailing slash). Because our URLpattern requires a trailing slash, that URL would not match. However, by default, any request to a URL that doesn’t match a URLpattern and doesn’t end with a slash will be redirected to the same URL with a trailing slash (This is regulated by the APPEND_SLASH Django setting, which is covered in Appendix D).
 
 - ROOT_URLCONF tells Django which Python module should be used as the URLconf for this web site.
+
+`ROOT_URLCONF = 'mysite.urls'` 
+
+This corresponds to the file mysite/urls.py. When a request comes in for a particular URL – say, a request for /hello/ – Django loads the URLconf pointed to by the ROOT_URLCONF setting. Then it checks each of the URLpatterns in that URLconf, in order, comparing the requested URL with the patterns one at a time, until it finds one that matches.
+
