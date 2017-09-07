@@ -94,3 +94,52 @@ def hours_ahead(request, offset):
 Finally, it’s obvious that much of this information is sensitive – it exposes the innards of your Python code and Django configuration – and it would be foolish to show this information on the public Internet. A malicious person could use it to attempt to reverse-engineer your web application and do nasty things.
 
 For that reason, the Django error page is only displayed when your Django project is in debug mode. I’ll explain how to deactivate debug mode in Chapter 13. For now, just know that every Django project is in debug mode automatically when you start it. (Sound familiar? The “Page not found” errors, described earlier in this chapter, work the same way.)
+
+## Django Templates
+
+### Reasons why it’s not a good idea to hard-code HTML directly into your views:
+- Any change to the design of the page requires a change to the Python code. The design of a site tends to change far more frequently than the underlying Python code, so it would be convenient if the design could change without needing to modify the Python code.
+
+- This is only a very simple example. A common webpage template has hundreds of lines of HTML and scripts. Untangling and troubleshooting program code from this mess is a nightmare (cough-PHP-cough).
+
+- Writing Python code and designing HTML are two different disciplines, and most professional web development environments split these responsibilities between separate people (or even separate departments). Designers and HTML/CSS coders shouldn’t be required to edit Python code to get their job done.
+
+- It’s most efficient if programmers can work on Python code and designers can work on templates at the same time, rather than one person waiting for the other to finish editing a single file that contains both Python and HTML.
+
+### tags
+```
+{{ variable }}
+{% for x in y %} {% endfor %}
+{% if conditions %} {% endif %}
+{{ ship_date|date:"F j, Y"}} | is a filter
+```
+
+### use a dot to access dictionary keys, attributes, methods, or indices of an object. but negative list indices are not allowed.
+- Dot lookups can be summarized like this: when the template system encounters a dot in a variable name, it tries the following lookups, in this order:
+
+- Dictionary lookup (e.g., foo["bar"])
+- Attribute lookup (e.g., foo.bar)
+- Method call (e.g., foo.bar())
+- List-index lookup (e.g., foo[2])
+
+The system uses the first lookup type that works. It’s short-circuit logic. Dot lookups can be nested multiple levels deep. For instance, the following example uses {{ person.name.upper }}, which translates into a dictionary lookup (person['name']) and then a method call (upper())
+
+#### Method Call Behavior
+- If, during the method lookup, a method raises an exception, the exception will be propagated, unless the exception has an attribute silent_variable_failure whose value is True. If the exception does have a silent_variable_failure attribute, the variable will render as the value of the engine’s string_if_invalid configuration option (an empty string, by default).
+
+- A method call will only work if the method has no required arguments. Otherwise, the system will move to the next lookup type (list-index lookup).
+
+- By design, Django intentionally limits the amount of logic processing available in the template, so it’s not possible to pass arguments to method calls accessed from within templates. Data should be calculated in views and then passed to templates for display.
+
+- Obviously, some methods have side effects, and it would be foolish at best, and possibly even a security hole, to allow the template system to access them.
+
+- Say, for instance, you have a BankAccount object that has a delete() method. If a template includes something like {{ account.delete }}, where account is a BankAccount object, the object would be deleted when the template is rendered! To prevent this, set the function attribute alters_data on the method.
+
+The template system won’t execute any method marked in this way. Continuing the above example, if a template includes {{ account.delete }} and the delete() method has the alters_data=True, then the delete() method will not be executed when the template is rendered, the engine will instead replace the variable with string_if_invalid.
+
+NOTE: The dynamically-generated delete() and save() methods on Django model objects get alters_data=true set automatically.
+
+### How Invalid Variables Are Handled
+Generally, if a variable doesn’t exist, the template system inserts the value of the engine’s string_if_invalid configuration option, which is an empty string by default. 
+
+
