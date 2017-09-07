@@ -1,4 +1,5 @@
-# The Model-View-Controller Design Pattern
+# Chapter 1 Gettings Started
+## The Model-View-Controller Design Pattern
 The MVC design pattern is:
 > - The model(M) is a model or representation of your data. It’s not the actual data, but an interface to the data. The model allows you to pull data from your database without knowing the intricacies of the underlying database. The model usually also provides an abstraction layer with your database, so that you can use the same model with multiple databases.
 > - The view(V) is what you see. It’s the presentation layer for your model. On your computer, the view is what you see in the browser for a Web app, or the UI for a desktop app. The view also provides an interface to collect user input.
@@ -20,4 +21,16 @@ Django MVT 和 MVC 的对应
 |View|Controller|
 |Template|View|
 
-#
+# Chapter 2: Django Views and URLconfs
+## Views and URLconfs
+
+- The contents of the page are produced by a view function, and the URL is specified in a URLconf. 
+- A URLconf is like a table of contents for your Django-powered web site. Basically, it’s a mapping between URLs and the view functions that should be called for those URLs. It’s how you tell Django, “For this URL, call this code, and for that URL, call that code.” For example, when somebody visits the URL /foo/, call the view function foo_view(), which lives in the Python module views.py.
+- from the django.conf.urls module import include, url: include which allows you to include a full Python import path to another URLconf module, and url which uses a regular expression to pattern match the URL in your browser to a module in your Django project.
+- from the django.contrib module import admin. This function is called by the include function to load the URLs for the Django admin site.
+- urlpatterns – a simple list of url() instances. The main thing to note here is the variable urlpatterns, which Django expects to find in your URLconf module. This variable defines the mapping between URLs and the code that handles those URLs. To add a URL and view to the URLconf, just add a mapping between a URL pattern and the view function.
+- Django removes the slash from the front of every incoming URL before it checks the URLpatterns. This means that our URLpattern doesn’t include the leading slash in /hello/. At first, this may seem unintuitive, but this requirement simplifies things – such as the inclusion of URLconfs within other URLconfs.
+- The pattern includes a caret (^) and a dollar sign ($). These are regular expression characters that have a special meaning: the caret means “require that the pattern matches the start of the string,” and the dollar sign means “require that the pattern matches the end of the string.”
+- You may be wondering what happens if someone requests the URL /hello (that is, without a trailing slash). Because our URLpattern requires a trailing slash, that URL would not match. However, by default, any request to a URL that doesn’t match a URLpattern and doesn’t end with a slash will be redirected to the same URL with a trailing slash (This is regulated by the APPEND_SLASH Django setting, which is covered in Appendix D).
+
+- ROOT_URLCONF tells Django which Python module should be used as the URLconf for this web site.
