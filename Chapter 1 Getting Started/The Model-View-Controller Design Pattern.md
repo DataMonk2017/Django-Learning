@@ -144,4 +144,82 @@ NOTE: The dynamically-generated delete() and save() methods on Django model obje
 ### How Invalid Variables Are Handled
 Generally, if a variable doesn’t exist, the template system inserts the value of the engine’s string_if_invalid configuration option, which is an empty string by default. 
 
+## Django Template Tags and Filters
+### Tags
+
+#### if/elif/else
+'''python
+{% if %}
+{% elif %}
+{% else %}
+'''
+
+> Use of actual parentheses in the if tag is invalid syntax.
+> If you need parentheses to indicate precedence, you should use nested if tags. The use of parentheses for controlling order of operations is not supported. If you find yourself needing parentheses, consider performing logic outside the template and passing the result of that as a dedicated template variable. Or, just use nested {% if %} tags.
+
+#### for
+'''python
+{% for x in y }
+do something
+{% endfor %}
+
+#reversed
+{% for athlete in athlete_list reversed %}
+...
+{% endfor %}
+
+#empty
+{% for athlete in athlete_list %}
+...
+{% empty %}
+
+{% endfor %}
+'''
+
+There is no support for “breaking out” of a loop before the loop is finished. If you want to accomplish this, change the variable you’re looping over so that it includes only the values you want to loop over.
+Similarly, there is no support for a “continue” statement that would instruct the loop processor to return immediately to the front of the loop. 
+
+forloop.counter
+forloop.counter0
+forloop.revcounter
+forloop.revcounter0
+forloop.first
+forloop.last
+forloop.parentloop
+
+## comments
+{# This is a comment #}
+{% comment "This is the optional note" %}
+{% endcomment %}
+
+## Filters
+{{ name|lower }}
+{{ my_list|first|upper }}
+
+Filters can be chained – that is, they can be used in tandem such that the output of one filter is applied to the next.
+Filter could take argument, which comes after a colon and is always in double quotes.
+{{ bio|truncatewords:"30" }}
+
+some other important filters:
+addslashes
+date
+length
+
+
+## Philosophies and Limitations
+First and foremost, the limitations to the DTL are intentional.
+
+Django was developed in the high volume, ever-changing environment of an online newsroom. The original creators of Django had a very definite set of philosophies in creating the DTL.
+
+These philosophies remain core to Django today. They are:
+
+1. Separate logic from presentation
+2. Discourage redundancy
+3. Be decoupled from HTML
+4. XML is bad
+5. Assume designer competence
+6. Treat whitespace obviously
+7. Don’t invent a programming language
+8. Ensure safety and security
+9. Extensible
 
