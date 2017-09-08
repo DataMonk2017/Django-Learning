@@ -158,7 +158,7 @@ Generally, if a variable doesn’t exist, the template system inserts the value 
 > If you need parentheses to indicate precedence, you should use nested if tags. The use of parentheses for controlling order of operations is not supported. If you find yourself needing parentheses, consider performing logic outside the template and passing the result of that as a dedicated template variable. Or, just use nested {% if %} tags.
 
 #### for
-'''python
+```python
 {% for x in y }
 do something
 {% endfor %}
@@ -174,7 +174,7 @@ do something
 {% empty %}
 
 {% endfor %}
-'''
+```
 
 There is no support for “breaking out” of a loop before the loop is finished. If you want to accomplish this, change the variable you’re looping over so that it includes only the values you want to loop over.
 Similarly, there is no support for a “continue” statement that would instruct the loop processor to return immediately to the front of the loop. 
