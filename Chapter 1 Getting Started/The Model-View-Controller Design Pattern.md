@@ -188,18 +188,21 @@ forloop.last
 forloop.parentloop
 
 ## comments
+```python
 {# This is a comment #}
 {% comment "This is the optional note" %}
 {% endcomment %}
-
+```
 ## Filters
+```python
 {{ name|lower }}
 {{ my_list|first|upper }}
-
+```
 Filters can be chained – that is, they can be used in tandem such that the output of one filter is applied to the next.
 Filter could take argument, which comes after a colon and is always in double quotes.
+```python
 {{ bio|truncatewords:"30" }}
-
+```
 some other important filters:
 addslashes
 date
