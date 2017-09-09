@@ -148,11 +148,11 @@ Generally, if a variable doesn’t exist, the template system inserts the value 
 ### Tags
 
 #### if/elif/else
-'''python
+```python
 {% if %}
 {% elif %}
 {% else %}
-'''
+```
 
 > Use of actual parentheses in the if tag is invalid syntax.
 > If you need parentheses to indicate precedence, you should use nested if tags. The use of parentheses for controlling order of operations is not supported. If you find yourself needing parentheses, consider performing logic outside the template and passing the result of that as a dedicated template variable. Or, just use nested {% if %} tags.
@@ -226,3 +226,96 @@ These philosophies remain core to Django today. They are:
 8. Ensure safety and security
 9. Extensible
 
+# Chapter 4
+## Django Models
+
+### Configuring the Database
+
+With all of that philosophy in mind, let’s start exploring Django’s database layer. First, let’s explore the initial configuration that was added to settings.py when we created the application:
+
+```python
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+```
+
+The default setup is pretty simple. Here’s a rundown of each setting:
+
+- ENGINE tells Django which database engine to use. As we are using SQLite in the examples in this book, we will leave it to the default django.db.backends.sqlite3.
+- NAME tells Django the name of your database. For example: 'NAME': 'mydb',
+
+### What’s the difference between a project and an app? 
+
+The difference is that of configuration vs. code:
+
+A project is an instance of a certain set of Django apps, plus the configuration for those apps. Technically, the only requirement of a project is that it supplies a settings file, which defines the database connection information, the list of installed apps, the DIRS, and so forth.
+An app is a portable set of Django functionality, usually including models and views, that live together in a single Python package. For example, Django comes with a number of apps, such as the automatic admin interface. A key thing to note about these apps is that they’re portable and reusable across multiple projects.
+
+Show the scrpit Django generated to run in the db
+```python
+python manage.py sqlmigrate books 0001
+```
+### create objects and save them
+When you’re creating objects using the Django model API, Django doesn’t save the objects to the database until you call the save() method:
+```python
+p1 = Publisher(...)
+# At this point, p1 is not saved to the database yet!
+p1.save()
+# Now it is.
+```
+
+If you want to create an object and save it to the database in a single step, use the objects.create() method. This example is equivalent to the example above:
+
+```python
+>>> p1 = Publisher.objects.create(name='Apress',
+...     address='2855 Telegraph Avenue',
+...     city='Berkeley', state_province='CA', country='U.S.A.',
+...     website='http://www.apress.com/')
+```
+
+a __str__() method can do whatever it needs to do in order to return a representation of an object.
+```python
+def __str__(self): 
+    return self.title
+```
+
+### select oibjects
+```python
+Publisher.objects.all()
+Publisher.objects.filter(name='Apress')
+Publisher.objects.filter(country="U.S.A.", state_province="CA")
+Publisher.objects.filter(name__contains="press")
+Publisher.objects.filter(name__icontains="press") #insensitive LIKE
+#other types of lookups are startswith, endswith, range
+```
+### Retrieving Single Objects
+```python
+Publisher.objects.get(name="Apress") #get one single object. cause exception when nonthing or multiple objects are returned.
+# Publisher.DoesNotExist Publisher.MultipleObjectsReturned
+```
+
+### Ordering Data
+```python
+Publisher.objects.order_by("name")
+Publisher.objects.order_by("state_province", "address") #order by multiple field
+Publisher.objects.order_by("-name") #reverse ordering
+
+Publisher.objects.filter(country="U.S.A.").order_by("-name") #chaining lookups
+
+Publisher.objects.order_by('name')[0:2] #slicing data
+
+Publisher.objects.filter(id=1).update(name='Apress Publishing') #updating multiple objects in one statement
+```
+
+### Deleting Objects
+```python
+p = Publisher.objects.get(name="O'Reilly")
+p.delete()
+
+Publisher.objects.filter(country='USA').delete()
+
+Publisher.objects.all().delete()
+```
