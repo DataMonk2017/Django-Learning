@@ -258,7 +258,7 @@ Show the scrpit Django generated to run in the db
 ```python
 python manage.py sqlmigrate books 0001
 ```
-### create objects and save them
+### Create objects and save them
 When you’re creating objects using the Django model API, Django doesn’t save the objects to the database until you call the save() method:
 ```python
 p1 = Publisher(...)
@@ -282,7 +282,7 @@ def __str__(self):
     return self.title
 ```
 
-### select oibjects
+### Select oibjects
 ```python
 Publisher.objects.all()
 Publisher.objects.filter(name='Apress')
@@ -319,3 +319,85 @@ Publisher.objects.filter(country='USA').delete()
 
 Publisher.objects.all().delete()
 ```
+
+# Chapter 5: The Django Admin Site
+
+## The Django Admin Site
+## Adding Models to Django Admin
+```python 
+python manage.py createsuperuser
+
+#tell the Django admin site to offer an interface for each of these models
+admin.site.register(Publisher)
+
+#blank=True, works for most field, but for some field like date or other numberic field, use blank=True and null=True.
+```
+However, field names don’t always lend themselves to nice admin field labels, so in some cases you might want to customize a label. You can do this by specifying verbose_name in the appropriate model field. For example, here’s how we can change the label of the Author.email field to “e-mail,” with a hyphen:
+
+```python
+#verbose_name
+
+class Author(models.Model):
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=40)
+    email = models.EmailField(blank=True, verbose_name ='e-mail')
+```
+
+Make that change and reload the server, and you should see the field’s new label on the author edit form. Note that you shouldn’t capitalize the first letter of a verbose_name unless it should always be capitalized (e.g., "USA state"). Django will automatically capitalize it when it needs to, and it will use the exact verbose_name value in other places that don’t require capitalization.
+
+## Customizing Change List and Forms
+```python
+from django.contrib import admin
+from .models import Publisher, Author, Book
+
+class AuthorAdmin(admin.ModelAdmin):
+    list_display = ('first_name', 'last_name', 'email')
+    search_fields = ('first_name', 'last_name')
+    
+
+
+class BookAdmin(admin.ModdelAdmin):
+    list_display = ('title', 'publisher','publication_date')
+    list_filter = ('publication_date')
+    date_hierarchy = 'publication_date'
+    ordering = ('-publication_date',)    
+    fields = ('title', 'authors', 'publisher')
+    
+    
+admin.site.register(Publisher)
+admin.site.register(Author, AuthorAdmin)
+admin.site.register(Book)
+```
+We’ve only specified one customization – list_display, which is set to a tuple of field names to display on the change list page. These field names must exist in the model, of course.
+
+Add search_fields to the AuthorAdmin to add a simple search bar. (The search bar is case-insenstitive and searches both fields.) list_filter also works on fields of other types, not just DateField. (Try it with BooleanField and ForeignKey fields, for example.) Note that date_hierarchy takes a string, not a tuple, because only one date field can be used to make the hierarchy. Finally, let’s change the default ordering so that books on the change list page are always ordered descending by their publication date.
+
+### Customizing Edit Forms
+
+Another useful thing the fields option lets you do is to exclude certain fields from being edited entirely. Just leave out the field(s) you want to exclude.
+
+```python
+filter_horizontal = ('authors',)
+```
+I’d highly recommend using filter_horizontal for any ManyToManyField that has more than 10 items. ModelAdmin classes also support a filter_vertical option. This works exactly as filter_horizontal, but the resulting JavaScript interface stacks the two boxes vertically instead of horizontally. It’s a matter of personal taste.
+
+filter_horizontal and filter_vertical only work on ManyToManyField fields, not ForeignKey fields. By default, the admin site uses simple <select> boxes for ForeignKey fields, but, as for ManyToManyField, sometimes you don’t want to incur the overhead of having to select all the related objects to display in the drop-down.
+
+For example, if our book database grows to include thousands of publishers, the “Add book” form could take a while to load, because it would have to load every publisher for display in the <select> box. The way to fix this is to use an option called raw_id_fields:
+```python
+raw_id_fields = ('publisher',)
+```
+
+## Users, Groups and Permissions
+
+The active flag controls whether the user is active at all. If this flag is off and the user tries to log in, they won’t be allowed in, even with a valid password.
+The staff flag controls whether the user is allowed to log in to the admin interface (i.e., whether that user is considered a staff member in your organization). Since this same user system can be used to control access to public (i.e., non-admin) sites (see Chapter 11), this flag differentiates between public users and administrators.
+The superuser flag gives the user full access to add, create and delete any item in the admin interface. If a user has this flag set, then all regular permissions (or lack thereof) are ignored for that user.
+
+Set this to a tuple of ForeignKey field names, and those fields will be displayed in the admin with a simple text input box (<input type="text">) instead of a <select>.
+
+Note that these permissions are defined per-model, not per-object – so they let you say “John can make changes to any book,” but they don’t let you say “John can make changes to any book published by Apress.” The latter functionality, per-object permissions, is a bit more complicated and is outside the scope of this book but is covered in the Django documentation.
+
+<aside class="warning">
+Access to edit users and permissions is also controlled by this permission system. If you give someone permission to edit users, they will be able to edit their own permissions, which might not be what you want! Giving a user permission to edit users is essentially turning a user into a superuser.
+</aside>
