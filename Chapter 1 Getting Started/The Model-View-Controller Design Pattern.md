@@ -398,10 +398,7 @@ Set this to a tuple of ForeignKey field names, and those fields will be displaye
 
 Note that these permissions are defined per-model, not per-object – so they let you say “John can make changes to any book,” but they don’t let you say “John can make changes to any book published by Apress.” The latter functionality, per-object permissions, is a bit more complicated and is outside the scope of this book but is covered in the Django documentation.
 
-<aside class="warning">
-Access to edit users and permissions is also controlled by this permission system. If you give someone permission to edit users, they will be able to edit their own permissions, which might not be what you want! Giving a user permission to edit users is essentially turning a user into a superuser.
-</aside>
+> Access to edit users and permissions is also controlled by this permission system. If you give someone permission to edit users, they will be able to edit their own permissions, which might not be what you want! Giving a user permission to edit users is essentially turning a user into a superuser.
 
 
-```
 
