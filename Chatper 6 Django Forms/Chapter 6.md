@@ -62,7 +62,7 @@ request.POST #data generally is submitted from an HTML <form>
 ```
 <form action="" method="get"> The action="" means “Submit the form to the same URL as the current page.”
 
-```
+```python
 def search(request):
     error = False
     if 'q' in request.GET:
@@ -75,4 +75,57 @@ def search(request):
     return render(request, 'books/search_form.html', {'error': error})
 ```
 
-###
+## Simple Validation
+
+```python
+def search(request):
+    errors = []
+    if 'q' in request.GET:
+        q = request.GET['q']
+        if not q:
+            errors.append('Enter a search term.')
+        elif len(q) > 20:
+            errors.append('Please enter at most 20 characters.')
+        else:
+            books = Book.objects.filter(title__icontains=q)
+            return render(request, 'search_results.html', {'books': books, 'query': q})
+    return render(request, 'search_form.html', {'errors': errors})
+```
+```html
+<html>
+<head>
+    <title>Search</title>
+</head>
+<body>
+    {% if errors %}
+        <ul>
+            {% for error in errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <form action="/search/" method="get">
+        <input type="text" name="q">
+        <input type="submit" value="Search">
+    </form>
+</body>
+</html>
+```
+
+### Making a Contact Form
+```python
+from django import forms
+
+class ContactForm(forms.Form):
+    subject = forms.CharField()
+    email = forms.EmailField(required=False)
+    message = forms.CharField()
+
+f = ContactFrom({'subject': 'Hello', 'email': 'nige@example.com', 'message': 'Nice site!'})
+{{f.as_p}}
+{{f.as_ul}}
+f.is_bound() #Once you’ve associated data with a Form instance, you’ve created a “bound” form:
+f.is_valid() #whether its data is valid
+f.cleaned_data
+f.errors/f['email'].errors
+```
