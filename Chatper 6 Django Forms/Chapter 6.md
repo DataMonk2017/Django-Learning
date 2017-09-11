@@ -217,3 +217,104 @@ def contact(request):
     return render(request, 'contact_form.html', {'form':form})
 ```
 > Now, the subject field will be displayed pre-populated with that kind statement. Note that there is a difference between passing initial data and passing data that binds the form. The biggest difference is that if you’re just passing initial data, then the form will be unbound, which means it won’t have any error messages.
+
+
+### Custom Validation Rules
+
+There are a number of ways to hook custom validation into a Django form. If our rule is something we will reuse again and again, we can create a custom field type. Most custom validations are one-off affairs, though, and can be tied directly to the Form class. We want additional validation on the message field, so we add a `clean_message()` method to our Form class:
+```python
+from django import forms
+
+class ContactForm(forms.Form):
+    subject = forms.CharField(max_length=100)
+    email = forms.EmailField(required=False, label='Your e-mail address') #customize the label for a given field
+    message = forms.CharField(widget=forms.Textarea)
+
+    def clean_message(self):
+        message = self.cleaned_data['message']
+        num_words = len(message.split())
+        if num_words < 4:
+            raise forms.ValidationError("Not enough words!")
+        return message
+```        
+Django’s form system automatically looks for any method whose name starts with `clean_` and ends with the name of a field. If any such method exists, it’s called during validation. Specifically, the `clean_message()` method will be called after the default validation logic for a given field (in this case, the validation logic for a required `CharField`). Because the field data has already been partially processed, we pull it out of `self.cleaned_data`.
+
+By default, the labels on Django’s auto-generated form HTML are created by replacing underscores with spaces and capitalizing the first letter – so the label for the email field is "Email".  But, as with Django’s models, we can customize the label for a given field. Just use label
+
+### Customizing Form Design
+
+Our contact_form.html template uses `{{ form.as_table }}` to display the form, but we can display the form in other ways to get more granular control over display. The quickest way to customize forms’ presentation is with CSS. Error lists, in particular, could do with some visual enhancement, and the auto-generated error lists use `<ul class="errorlist">` precisely so that you can target them with CSS. Add the following CSS in the `<head></head>` section of `contact_form.html` to really make our errors stand out:
+
+```html
+<style type="text/css">
+    ul.errorlist {
+        margin: 0;
+        padding: 0;
+    }
+    .errorlist li {
+        background-color: red;
+        color: white;
+        display: block;
+        font-size: 1.2em;
+        margin: 0 0 3px;
+        padding: 4px 5px;
+    }
+</style>
+```
+
+Each field’s widget (`<input type="text">, <select>, <textarea>`, etc.) can be rendered individually by accessing `{{ form.fieldname }}` in the template, and any errors associated with a field are available as `{{ form.fieldname.errors }}`. With this in mind, we can construct a custom template for our contact form with the following template code:
+
+```html
+<html>
+<head>
+    <title>Contact us</title>
+</head>
+<body>
+    <h1>Contact us</h1>
+
+    {% if form.errors %}
+        <p style="color: red;">
+            Please correct the error{{ form.errors|pluralize }} below.
+        </p>
+    {% endif %}
+
+    <form action="" method="post">
+        <div class="field">
+            {{ form.subject.errors }}
+            <label for="id_subject">Subject:</label>
+            {{ form.subject }}
+        </div>
+        <div class="field">
+            {{ form.email.errors }}
+            <label for="id_email">Your e-mail address:</label>
+            {{ form.email }}
+        </div>
+        <div class="field">
+            {{ form.message.errors }}
+            <label for="id_message">Message:</label>
+            {{ form.message }}
+        </div>
+        {% csrf_token %}
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+```
+
+In the above template code, `{{ form.message.errors }}` displays a `<ul class="errorlist">` if errors are present and a blank string if the field is valid (or the form is unbound). This is the same for the other fields on our contact form.
+
+We can also treat form.message.errors as a Boolean or even iterate over it as a list. This is useful when there can be multiple errors associated with a field. For example:
+```python
+<div class="field{% if form.message.errors %} errors{% endif %}">
+    {% if form.message.errors %}
+        <ul>
+        {% for error in form.message.errors %}
+            <li><strong>{{ error }}</strong></li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    <label for="id_message">Message:</label>
+    {{ form.message }}
+</div>
+```
+In the case of validation errors, this will add an “errors” class to the containing `<div>` and display the list of errors associated with the message field in an unordered list.
