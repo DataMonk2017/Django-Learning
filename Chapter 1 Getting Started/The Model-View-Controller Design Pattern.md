@@ -384,6 +384,7 @@ I’d highly recommend using filter_horizontal for any ManyToManyField that has 
 filter_horizontal and filter_vertical only work on ManyToManyField fields, not ForeignKey fields. By default, the admin site uses simple <select> boxes for ForeignKey fields, but, as for ManyToManyField, sometimes you don’t want to incur the overhead of having to select all the related objects to display in the drop-down.
 
 For example, if our book database grows to include thousands of publishers, the “Add book” form could take a while to load, because it would have to load every publisher for display in the <select> box. The way to fix this is to use an option called raw_id_fields:
+
 ```python
 raw_id_fields = ('publisher',)
 ```
