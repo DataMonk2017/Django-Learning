@@ -368,6 +368,7 @@ admin.site.register(Publisher)
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(Book)
 ```
+
 We’ve only specified one customization – list_display, which is set to a tuple of field names to display on the change list page. These field names must exist in the model, of course.
 
 Add search_fields to the AuthorAdmin to add a simple search bar. (The search bar is case-insenstitive and searches both fields.) list_filter also works on fields of other types, not just DateField. (Try it with BooleanField and ForeignKey fields, for example.) Note that date_hierarchy takes a string, not a tuple, because only one date field can be used to make the hierarchy. Finally, let’s change the default ordering so that books on the change list page are always ordered descending by their publication date.
@@ -379,6 +380,7 @@ Another useful thing the fields option lets you do is to exclude certain fields 
 ```python
 filter_horizontal = ('authors',)
 ```
+
 I’d highly recommend using filter_horizontal for any ManyToManyField that has more than 10 items. ModelAdmin classes also support a filter_vertical option. This works exactly as filter_horizontal, but the resulting JavaScript interface stacks the two boxes vertically instead of horizontally. It’s a matter of personal taste.
 
 filter_horizontal and filter_vertical only work on ManyToManyField fields, not ForeignKey fields. By default, the admin site uses simple <select> boxes for ForeignKey fields, but, as for ManyToManyField, sometimes you don’t want to incur the overhead of having to select all the related objects to display in the drop-down.
@@ -398,7 +400,6 @@ The superuser flag gives the user full access to add, create and delete any item
 Set this to a tuple of ForeignKey field names, and those fields will be displayed in the admin with a simple text input box (<input type="text">) instead of a <select>.
 
 > Note that these permissions are defined per-model, not per-object – so they let you say “John can make changes to any book,” but they don’t let you say “John can make changes to any book published by Apress.” The latter functionality, per-object permissions, is a bit more complicated and is outside the scope of this book but is covered in the Django documentation.
-
 > Access to edit users and permissions is also controlled by this permission system. If you give someone permission to edit users, they will be able to edit their own permissions, which might not be what you want! Giving a user permission to edit users is essentially turning a user into a superuser.
 
 
