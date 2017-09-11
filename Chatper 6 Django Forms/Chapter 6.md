@@ -129,3 +129,91 @@ f.is_valid() #whether its data is valid
 f.cleaned_data
 f.errors/f['email'].errors
 ```
+
+## Tying Forms to Views
+```python
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.shortcuts import render
+import datetime
+from mysite.forms import ContactForm    
+from django.core.mail import send_mail, get_connection
+
+# ...
+
+def contact(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            con = get_connection('django.core.mail.backends.console.EmailBackend')
+            send_mail(
+                cd['subject'],
+                cd['message'],
+                cd.get('email', 'noreply@example.com'),
+                ['siteowner@example.com'],
+                connection=con
+            )
+            return HttpResponseRedirect('/contact/thanks/')
+    else:
+        form = ContactForm()
+
+    return render(request, 'contact_form.html', {'form': form})
+```
+```html
+<html>
+<head>
+    <title>Contact us</title>
+</head>
+<body>
+    <h1>Contact us</h1>
+
+    {% if form.errors %}
+        <p style="color: red;">
+            Please correct the error{{ form.errors|pluralize }} below.
+        </p>
+    {% endif %}
+
+    <form action="" method="post" novalidate>
+        <table>
+            {{ form.as_table }}
+        </table>
+        {% csrf_token %}
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
+```
+In short, all POST forms that are targeted at internal URLs should use the {% csrf_token %} template tag. 
+
+Keen-eyed readers will also notice the novalidate attribute in the <form> tag. When using HTML5 in some of the latest browsers (notably Chrome), form fields will be automatically validated by the browser. As we want Django to handle form validation, the novalidate attribute tells the browser not to validate the form.
+
+### Changing How Fields Are Rendered
+```python
+from django import forms
+
+class ContactForm(forms.Form):
+    subject = forms.CharField(max_length=100) #Setting a Maximum Length
+    email = forms.EmailField(required=False)
+    message = forms.CharField(widget=forms.Textarea)
+```
+The forms framework separates out the presentation logic for each field into a set of widgets. Each field type has a default widget, but you can easily override the default, or provide a custom widget of your own. Think of the Field classes as representing validation logic, while widgets represent presentation logic.
+
+### Setting a Maximum/Minimum Length
+
+max_length and min_length.
+
+### Setting Initial Values
+we can use the initial argument when we create a Form instance:
+```python
+def contact(request):
+    
+    # ...
+
+    else:
+        form = ContactForm(
+            initial={'subject': 'I love your site!'}
+        )
+        
+    return render(request, 'contact_form.html', {'form':form})
+```
+> Now, the subject field will be displayed pre-populated with that kind statement. Note that there is a difference between passing initial data and passing data that binds the form. The biggest difference is that if you’re just passing initial data, then the form will be unbound, which means it won’t have any error messages.
