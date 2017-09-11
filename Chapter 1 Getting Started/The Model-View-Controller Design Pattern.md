@@ -397,7 +397,7 @@ The active flag controls whether the user is active at all. If this flag is off 
 The staff flag controls whether the user is allowed to log in to the admin interface (i.e., whether that user is considered a staff member in your organization). Since this same user system can be used to control access to public (i.e., non-admin) sites (see Chapter 11), this flag differentiates between public users and administrators.
 The superuser flag gives the user full access to add, create and delete any item in the admin interface. If a user has this flag set, then all regular permissions (or lack thereof) are ignored for that user.
 
-Set this to a tuple of ForeignKey field names, and those fields will be displayed in the admin with a simple text input box (<input type="text">) instead of a <select>.
+Set this to a tuple of ForeignKey field names, and those fields will be displayed in the admin with a simple text input box (`<input type="text">`) instead of a `<select>`.
 
 > Note that these permissions are defined per-model, not per-object – so they let you say “John can make changes to any book,” but they don’t let you say “John can make changes to any book published by Apress.” The latter functionality, per-object permissions, is a bit more complicated and is outside the scope of this book but is covered in the Django documentation.
 > Access to edit users and permissions is also controlled by this permission system. If you give someone permission to edit users, they will be able to edit their own permissions, which might not be what you want! Giving a user permission to edit users is essentially turning a user into a superuser.
